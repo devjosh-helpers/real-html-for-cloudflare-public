@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Helpers Flooring — Invoice</title>
+
+<style>
+  :root {
+    /* ---- Helpers Flooring Shared Palette ---- */
+    --sand: #F6EAD6; 
+    --clay: #D9D1B8; 
+    --clay-deep: #C6BC9F;
+    --sage: #B9D5CE; 
+    --sage-deep: #66746E;
+    --terra: #B98A64; 
+    --terra-soft: #E3BFA9;
+    --ink: #3F3B35; 
+    --ink-soft: #716A60;
+    
+    --font-sans: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --font-serif: Georgia,"Iowan Old Style","Times New Roman",serif;
+  }
+
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+
+  body{
+    margin:0;
+    background:var(--clay);
+    color:var(--ink);
+    font-family:var(--font-sans);
+    font-size:15px;
+    line-height:1.55;
+    padding:28px 16px 56px;
+  }
+
+  /* ---- document ---- */
+  .page{
+    position:relative;
+    max-width:820px;
+    margin:0 auto;
+    background:var(--sand);
+    box-shadow:0 10px 34px rgba(60,50,38,.14);
+    padding:44px 46px 40px;
+  }
+  
+  /* picture-frame inlay — brand thread from the proposal */
+  .page::before{
+    content:"";
+    position:absolute;
+    inset:14px;
+    border:1.5px solid var(--sage-deep);
+    outline:1px solid var(--terra);
+    outline-offset:3px;
+    pointer-events:none;
+  }
+  .inner{position:relative;}
+
+  /* ---- header ---- */
+  .head{
+    display:flex;flex-wrap:wrap;gap:20px 24px;
+    justify-content:space-between;align-items:flex-start;
+    padding-bottom:22px;border-bottom:1px solid var(--clay-deep);
+  }
+  .brand .wordmark{
+    font-weight:700;font-size:23px;letter-spacing:.13em;
+    text-transform:uppercase;line-height:1.05;color:var(--ink);
+  }
+  .brand .legal{
+    font-size:11.5px;letter-spacing:.04em;color:var(--sage-deep);
+    margin-top:5px;font-weight:600;
+  }
+  .brand .contact{
+    font-size:12.5px;color:var(--ink-soft);margin-top:9px;line-height:1.5;
+  }
+  .invoice-meta{text-align:right;min-width:210px;}
+  .invoice-meta .word{
+    font-family:var(--font-serif);font-size:30px;letter-spacing:.02em;
+    color:var(--terra);line-height:1;margin-bottom:12px;
+  }
+  .meta-row{
+    display:flex;justify-content:flex-end;gap:14px;
+    font-size:13px;padding:2px 0;
+  }
+  .meta-row .m-label{color:var(--ink-soft);}
+  .meta-row .m-val{min-width:96px;text-align:right;font-variant-numeric:tabular-nums;}
+
+  /* ---- bill to ---- */
+  .billing{
+    display:flex;flex-wrap:wrap;gap:22px 40px;
+    padding:22px 0;border-bottom:1px solid var(--clay-deep);
+  }
+  .billing .col{flex:1;min-width:220px;}
+  .eyebrow{
+    font-size:11px;font-weight:600;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--terra);margin:0 0 8px;
+  }
+  .billing .name{font-weight:600;font-size:16px;}
+  .billing .addr{color:var(--ink-soft);font-size:13.5px;}
+  .ph{color:var(--terra);}
+
+  /* ---- line items ---- */
+  .table-wrap{overflow-x:auto;margin:24px 0 0;}
+  table.items{width:100%;border-collapse:collapse;min-width:460px;}
+  table.items thead th{
+    text-align:left;font-size:11px;font-weight:600;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--sage-deep);
+    padding:0 0 10px;border-bottom:2px solid var(--sage);
+  }
+  table.items th.num,table.items td.num{
+    text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;
+  }
+  table.items td{
+    padding:13px 0;border-bottom:1px solid var(--clay-deep);
+    font-size:14.5px;vertical-align:top;
+  }
+  table.items td.desc .sub{
+    display:block;color:var(--ink-soft);font-size:12.5px;margin-top:2px;
+  }
+  table.items th.num,table.items td.num{padding-left:18px;}
+
+  /* ---- totals ---- */
+  .totals{display:flex;justify-content:flex-end;margin-top:18px;}
+  .totals .box{width:300px;max-width:100%;}
+  .t-row{
+    display:flex;justify-content:space-between;gap:20px;
+    padding:7px 0;font-size:14px;
+  }
+  .t-row .t-val{font-variant-numeric:tabular-nums;}
+  .t-row.muted{color:var(--ink-soft);}
+  .t-row.rule{border-top:1px solid var(--clay-deep);padding-top:11px;}
+  .balance{
+    position:relative;margin-top:12px;background:var(--clay);
+    border-radius:9px;padding:16px 18px;
+    display:flex;justify-content:space-between;align-items:center;gap:16px;
+  }
+  .balance::before{
+    content:"";position:absolute;inset:6px;
+    border:1px solid var(--terra-soft);border-radius:5px;pointer-events:none;
+  }
+  .balance .b-label{
+    font-size:11px;font-weight:600;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--sage-deep);
+  }
+  .balance .b-val{
+    font-weight:700;font-size:24px;color:var(--ink);
+    font-variant-numeric:tabular-nums;
+  }
+
+  /* ---- payment ---- */
+  .pay{margin-top:34px;padding-top:26px;border-top:1px solid var(--clay-deep);}
+  .pay-grid{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:14px;
+  }
+  .pay-card{
+    background:var(--clay);border:1px solid var(--clay-deep);border-radius:8px;
+    padding:15px 16px;
+  }
+  .pay-card .p-title{
+    font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--sage-deep);margin-bottom:8px;
+  }
+  .pay-card .p-body{font-size:13px;line-height:1.5;color:var(--ink);}
+  .pay-card .payee{font-weight:600;}
+  .btn{
+    display:inline-block;margin-top:9px;background:var(--terra);
+    color:var(--sand);text-decoration:none;font-size:12.5px;font-weight:600;
+    letter-spacing:.03em;padding:8px 14px;border-radius:6px;
+  }
+  .btn:focus-visible{outline:2px solid var(--sage-deep);outline-offset:2px;}
+  .fee-note{font-size:11.5px;color:var(--ink-soft);margin-top:7px;}
+
+  /* ---- terms + footer ---- */
+  .terms{margin-top:26px;font-size:12.5px;color:var(--ink-soft);}
+  .terms .eyebrow{margin-bottom:6px;}
+  .foot{
+    margin-top:28px;padding-top:20px;border-top:1px solid var(--clay-deep);
+    display:flex;flex-wrap:wrap;gap:8px 20px;justify-content:space-between;
+    align-items:center;
+  }
+  .foot .thanks{font-family:var(--font-serif);font-style:italic;font-size:15px;color:var(--ink);}
+  .foot .fcontact{font-size:13px;color:var(--ink-soft);}
+  .foot a{color:var(--sage-deep);text-decoration:none;border-bottom:1px solid var(--sage);}
+
+  /* ---- responsive ---- */
+  @media (max-width:560px){
+    body{padding:16px 10px 40px;}
+    .page{padding:26px 22px 30px;}
+    .page::before{inset:8px;}
+    .invoice-meta{text-align:left;min-width:0;}
+    .meta-row{justify-content:flex-start;}
+    .totals .box{width:100%;}
+    .pay-grid{grid-template-columns:1fr;}
+  }
+
+  /* ---- print ---- */
+  @media print{
+    body{background:#fff;padding:0;}
+    .page{box-shadow:none;max-width:none;}
+    .balance,.pay-card{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    .pay,.totals,.table-wrap{page-break-inside:avoid;}
+  }
+</style>
+</head>
+
+<body>
+
+  <div class="page">
+    <div class="inner">
+
+      <div class="head">
+        <div class="brand">
+          <div class="wordmark">Helpers Flooring</div>
+          <div class="legal">Helpers Contracting</div>
+          <div class="contact">
+            612-225-4565 · josh@helperscontracting.com
+          </div>
+        </div>
+        <div class="invoice-meta">
+          <div class="word">Invoice</div>
+          <div class="meta-row"><span class="m-label">Invoice #</span><span class="m-val ph">[0000]</span></div>
+          <div class="meta-row"><span class="m-label">Date</span><span class="m-val ph">[MM/DD/YYYY]</span></div>
+          <div class="meta-row"><span class="m-label">Due</span><span class="m-val ph">[MM/DD/YYYY]</span></div>
+        </div>
+      </div>
+
+      <div class="billing">
+        <div class="col">
+          <p class="eyebrow">Bill to</p>
+          <div class="name">Mels Floor Refinishing</div>
+        </div>
+        <div class="col">
+          <p class="eyebrow">For</p>
+          <div class="name">Kimberly Green</div>
+          <div class="addr">50430 Bayside Cir, Rush City, MN 55069, United States</div>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table class="items">
+          <thead>
+            <tr>
+              <th class="desc">Description</th>
+              <th class="num">Qty</th>
+              <th class="num">Rate</th>
+              <th class="num">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="li">
+              <td class="desc">
+                Flooring project — sales &amp; admin (15% of project sales)
+                <span class="sub">Estimate visit dated June 10; documented floor with a standardized picture set for the owner and the technician sanding the floor; followed up on invoice payment; confirmed address for Kim Green.</span>
+              </td>
+              <td class="num">1</td>
+              <td class="num">$489.37</td>
+              <td class="num">$489.37</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="totals">
+        <div class="box">
+          <div class="t-row"><span>Subtotal</span><span class="t-val">$489.37</span></div>
+          <div class="balance">
+            <span class="b-label">Balance due</span>
+            <span class="b-val">$489.37</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="pay">
+        <p class="eyebrow">How to pay</p>
+        <div class="pay-grid">
+          <div class="pay-card">
+            <div class="p-title">Check</div>
+            <div class="p-body">
+              Make payable to <span class="payee">Helpers Contracting</span>.<br>
+              Mail to: <span class="ph">[mailing address]</span>
+            </div>
+          </div>
+          <div class="pay-card">
+            <div class="p-title">ACH / Bank transfer</div>
+            <div class="p-body">
+              ACH bank transfer available.<br>
+              Routing &amp; account: <span class="ph">[provided on request]</span>
+            </div>
+          </div>
+          <div class="pay-card">
+            <div class="p-title">Credit card</div>
+            <div class="p-body">
+              Pay by card online, processed securely through QuickBooks.<br>
+              <a class="btn ph" href="[QuickBooks payment link]">Pay online</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="terms">
+        <p class="eyebrow">Terms</p>
+        <span class="ph">[Payment due within X days of invoice date. Add any late terms or notes here.]</span>
+      </div>
+
+      <div class="foot">
+        <div class="thanks">Thank you for your business.</div>
+        <div class="fcontact">Questions? Josh Roble · 612-225-4565</div>
+      </div>
+
+    </div>
+  </div>
+
+</body>
+</html>
